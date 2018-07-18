@@ -37,6 +37,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         private CollisionFlags m_CollisionFlags;
         private bool m_PreviouslyGrounded;
         private Vector3 m_OriginalCameraPosition;
+        private Vector3 m_OriginalCameraLocalPosition;
         private float m_StepCycle;
         private float m_NextStep;
         private bool m_Jumping;
@@ -48,13 +49,15 @@ namespace UnityStandardAssets.Characters.FirstPerson
         public static bool m_IsWalking;
         public static bool m_IsCrouching;
         public static bool m_Jump;
+        public static Vector3 m_HitPosition;
 
         // Use this for initialization
         private void Start()
         {
             m_CharacterController = GetComponent<CharacterController>();
             m_Camera = Camera.main;
-            m_OriginalCameraPosition = m_Camera.transform.localPosition;
+            m_OriginalCameraPosition = m_Camera.transform.position;
+            m_OriginalCameraLocalPosition = m_Camera.transform.localPosition;
             m_FovKick.Setup(m_Camera);
             m_HeadBob.Setup(m_Camera, m_StepInterval);
             m_StepCycle = 0f;
@@ -80,6 +83,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         {
             float speed;
             GetInput(out speed);
+            CameraRay();
             
             RotateView();
             CameraMove(speed);
@@ -99,6 +103,21 @@ namespace UnityStandardAssets.Characters.FirstPerson
             m_PreviouslyGrounded = m_CharacterController.isGrounded;
             
             m_MouseLook.UpdateCursorLock();
+        }
+        
+        private void CameraRay()
+        {
+            var ray = new Ray (m_Camera.transform.position, m_Camera.transform.forward);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit))
+            {
+                m_HitPosition = hit.point;
+            }
+            else
+            {
+                m_HitPosition = ray.GetPoint(100f);
+            }
         }
 
         private void CameraMove(float speed)
@@ -238,7 +257,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             if(m_IsCrouching)
             {
                 newCameraPosition = m_Camera.transform.localPosition;
-                newCameraPosition.y = m_OriginalCameraPosition.y - m_CrouchHeadDistance;
+                newCameraPosition.y = m_OriginalCameraLocalPosition.y - m_CrouchHeadDistance;
             }
             else if (m_CharacterController.velocity.magnitude > 0 && m_CharacterController.isGrounded)
             {
@@ -251,7 +270,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
             else
             {
                 newCameraPosition = m_Camera.transform.localPosition;
-                newCameraPosition.y = m_OriginalCameraPosition.y - m_JumpBob.Offset();
+                newCameraPosition.y = m_OriginalCameraLocalPosition.y - m_JumpBob.Offset();
             }
             m_Camera.transform.localPosition = newCameraPosition;
         }
