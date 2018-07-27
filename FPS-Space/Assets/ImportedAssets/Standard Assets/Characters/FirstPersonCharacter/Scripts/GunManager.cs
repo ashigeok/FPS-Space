@@ -4,14 +4,15 @@ using UnityEngine;
 
 namespace UnityStandardAssets.Characters.FirstPerson
 {
-	public class GunController : MonoBehaviour
+	public class GunManager : MonoBehaviour
 	{
 		[SerializeField] private GameObject muzzle;
 		[SerializeField] private GameObject sparkle;
 		[SerializeField] private AudioClip audioClip;
+		
 		private Vector3 hitPosition;
 		private bool isHit;
-		private bool m_IsCoolTime = false;
+		private bool isCoolTime = false;
 		private const float coolTime = 0.5f;
 		private const float offset = 0.1f;
 		private GameObject muzzleFlash;
@@ -28,7 +29,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		private Vector3 GetFiringDirection()
 		{
 			// ターゲットオブジェクトとの差分を求め
-			Vector3 temp =  FirstPersonController.m_HitPosition - muzzle.transform.position;
+			Vector3 temp =  FirstPersonCamera.m_HitPosition - muzzle.transform.position;
 			// 正規化して方向ベクトルを求める
 			Vector3 normal = temp.normalized;
 
@@ -50,7 +51,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 					isHit = false;
 				}
 			
-			if (Input.GetMouseButton(0) && !m_IsCoolTime)
+			if (Input.GetMouseButton(0) && !isCoolTime)
 			{
 				Fire();
 			}
@@ -60,7 +61,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 		private void Fire()
 		{
-			m_IsCoolTime = true;
+			isCoolTime = true;
 			FireSound();
 			FireEffect();
 			Invoke("SetCoolTime", coolTime);
@@ -86,7 +87,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 		private void SetCoolTime()
 		{
-			m_IsCoolTime = false;
+			isCoolTime = false;
 		}
 
 		private void DestroyMuzzleFlash()
