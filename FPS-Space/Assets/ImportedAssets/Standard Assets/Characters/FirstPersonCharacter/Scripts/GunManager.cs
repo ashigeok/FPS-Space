@@ -6,30 +6,31 @@ namespace UnityStandardAssets.Characters.FirstPerson
 {
 	public class GunManager : MonoBehaviour
 	{
-		[SerializeField] private GameObject muzzle;
-		[SerializeField] private GameObject sparkle;
-		[SerializeField] private AudioClip audioClip;
+		[SerializeField] private GameObject m_muzzle;
+		[SerializeField] private GameObject m_sparkle;
+		[SerializeField] private AudioClip m_audioClip;
+		[SerializeField] private FirstPersonCamera m_firstPersonCamera;
 		
-		private Vector3 hitPosition;
-		private bool isHit;
-		private bool isCoolTime = false;
-		private const float coolTime = 0.5f;
-		private const float offset = 0.1f;
-		private GameObject muzzleFlash;
-		private GameObject hitSparkle;
-		private AudioSource audioSource;
+		private Vector3 m_hitPosition;
+		private bool m_isHit;
+		private bool m_isCoolTime;
+		private const float m_coolTime = 0.5f;
+		private const float m_offset = 0.1f;
+		private GameObject m_muzzleFlash;
+		private GameObject m_hitSparkle;
+		private AudioSource m_audioSource;
 		
 		
 		// Use this for initialization
 		private void Start()
 		{
-			audioSource = GetComponent<AudioSource>();
+			m_audioSource = GetComponent<AudioSource>();
 		}
 
 		private Vector3 GetFiringDirection()
 		{
 			// ターゲットオブジェクトとの差分を求め
-			Vector3 temp =  FirstPersonCamera.m_HitPosition - muzzle.transform.position;
+			Vector3 temp =  m_firstPersonCamera.GetHitPosition() - m_muzzle.transform.position;
 			// 正規化して方向ベクトルを求める
 			Vector3 normal = temp.normalized;
 
@@ -38,21 +39,20 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 		// Update is called once per frame
 		private void Update () {
-
-			RaycastHit hit;
-
-				if (Physics.Raycast (muzzle.transform.position, GetFiringDirection(), out hit))
+			if (Input.GetMouseButton(0) && !m_isCoolTime)
+			{
+				RaycastHit hit;
+				
+				if (Physics.Raycast (m_muzzle.transform.position, GetFiringDirection(), out hit))
 				{
-					isHit = true;
-					hitPosition = hit.point;
+					m_isHit = true;
+					m_hitPosition = hit.point;
 				}
 				else
 				{
-					isHit = false;
+					m_isHit = false;
 				}
-			
-			if (Input.GetMouseButton(0) && !isCoolTime)
-			{
+				
 				Fire();
 			}
 			
@@ -61,70 +61,70 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 		private void Fire()
 		{
-			isCoolTime = true;
+			m_isCoolTime = true;
 			FireSound();
 			FireEffect();
-			Invoke("SetCoolTime", coolTime);
+			Invoke("SetCoolTime", m_coolTime);
 		}
 		
 		private void FireSound()
 		{
-			audioSource.PlayOneShot(audioClip);
+			m_audioSource.PlayOneShot(m_audioClip);
 		}
 
 		private void FireEffect ()
 		{
-			muzzleFlash = Instantiate(sparkle, muzzle.transform.position, muzzle.transform.rotation, muzzle.transform) as GameObject;
+			m_muzzleFlash = Instantiate(m_sparkle, m_muzzle.transform.position, m_muzzle.transform.rotation, m_muzzle.transform) as GameObject;
 			Invoke("DestroyMuzzleFlash", 0.1f);
 			
-			if (isHit)
+			if (m_isHit)
 			{
 				HitSparkleOffset();
-				hitSparkle = Instantiate(sparkle, hitPosition, muzzle.transform.rotation) as GameObject;
+				m_hitSparkle = Instantiate(m_sparkle, m_hitPosition, m_muzzle.transform.rotation) as GameObject;
 				Invoke("DestroyHitSparkle", 0.1f);
 			}
 		}
 
 		private void SetCoolTime()
 		{
-			isCoolTime = false;
+			m_isCoolTime = false;
 		}
 
 		private void DestroyMuzzleFlash()
 		{
-			Destroy(muzzleFlash);
+			Destroy(m_muzzleFlash);
 		}
 		
 		private void DestroyHitSparkle()
 		{
-			Destroy(hitSparkle);
+			Destroy(m_hitSparkle);
 		}
 
 		private void HitSparkleOffset()
 		{
-			if (hitPosition.x < muzzle.transform.position.x)
+			if (m_hitPosition.x < m_muzzle.transform.position.x)
 			{
-				hitPosition.x += offset;
+				m_hitPosition.x += m_offset;
 			}
 			else
 			{
-				hitPosition.x -= offset;
+				m_hitPosition.x -= m_offset;
 			}
-			if (hitPosition.y < muzzle.transform.position.y)
+			if (m_hitPosition.y < m_muzzle.transform.position.y)
 			{
-				hitPosition.y += offset;
-			}
-			else
-			{
-				hitPosition.y -= offset;
-			}
-			if (hitPosition.z < muzzle.transform.position.z)
-			{
-				hitPosition.z += offset;
+				m_hitPosition.y +=m_offset;
 			}
 			else
 			{
-				hitPosition.z -= offset;
+				m_hitPosition.y -= m_offset;
+			}
+			if (m_hitPosition.z < m_muzzle.transform.position.z)
+			{
+				m_hitPosition.z += m_offset;
+			}
+			else
+			{
+				m_hitPosition.z -= m_offset;
 			}
 		}
 		

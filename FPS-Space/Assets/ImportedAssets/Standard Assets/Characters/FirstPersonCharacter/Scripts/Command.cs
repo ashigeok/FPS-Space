@@ -26,7 +26,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         //Called when we press a key
         public override void Execute()
         {
-            FirstPersonController.vertical += 1f;
+            FirstPersonController.m_vertical += 1f;
         }
     }
 
@@ -36,7 +36,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         //Called when we press a key
         public override void Execute()
         {
-            FirstPersonController.vertical -= 1f;
+            FirstPersonController.m_vertical -= 1f;
         }
     }
 
@@ -46,7 +46,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         //Called when we press a key
         public override void Execute()
         {
-            FirstPersonController.horizontal -= 1f;
+            FirstPersonController.m_horizontal -= 1f;
         }
     }
 
@@ -56,7 +56,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         //Called when we press a key
         public override void Execute()
         {
-            FirstPersonController.horizontal += 1f;
+            FirstPersonController.m_horizontal += 1f;
         }
     }
 
@@ -76,13 +76,13 @@ namespace UnityStandardAssets.Characters.FirstPerson
         //Called when we press a key
         public override void Execute()
         {
-            FirstPersonController.m_IsCrouching = true;
+            FirstPersonController.m_isCrouching = true;
         }
         
         //Undo a command
         public override void Undo()
         {
-            FirstPersonController.m_IsCrouching = false;
+            FirstPersonController.m_isCrouching = false;
         }
     }
         
@@ -91,13 +91,13 @@ namespace UnityStandardAssets.Characters.FirstPerson
         //Called when we press a key
         public override void Execute()
         {
-            FirstPersonController.m_IsWalking = false;
+            FirstPersonController.m_isWalking = false;
         }
         
         //Undo a command
         public override void Undo()
         {
-            FirstPersonController.m_IsWalking = true;
+            FirstPersonController.m_isWalking = true;
         }
     }
     
@@ -106,13 +106,13 @@ namespace UnityStandardAssets.Characters.FirstPerson
         //Called when we press a key
         public override void Execute()
         {
-            FirstPersonController.m_Jump = true;
+            FirstPersonController.m_jump = true;
         }
         
         //Undo a command
         public override void Undo()
         {
-            FirstPersonController.m_Jump = false;
+            FirstPersonController.m_jump = false;
         }
     }
 }
