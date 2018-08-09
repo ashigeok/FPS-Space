@@ -8,22 +8,15 @@ namespace UnityStandardAssets.Characters.FirstPerson
 {
 	public class FirstPersonCamera : MonoBehaviour
 	{
-		
+		[SerializeField] private Camera m_camera;
 		[SerializeField] private MouseLook m_mouseLook;
 		[SerializeField] private bool m_useFovKick;
 		[SerializeField] private FOVKick m_fovKick = new FOVKick();
 		[SerializeField] private bool m_useHeadBob;
 		[SerializeField] private CurveControlledBob m_headBob = new CurveControlledBob();
 		[SerializeField] private LerpControlledBob m_jumpBob = new LerpControlledBob();
-
-		private Camera m_camera;
+		
 		private Vector3 m_originalCameraLocalPosition;
-
-
-		private void Awake()
-		{
-			m_camera = Camera.main;
-		}
 
 		// Use this for initialization
 		void Start()
