@@ -19,10 +19,15 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		private Camera m_camera;
 		private Vector3 m_originalCameraLocalPosition;
 
+
+		private void Awake()
+		{
+			m_camera = Camera.main;
+		}
+
 		// Use this for initialization
 		void Start()
 		{
-			m_camera = Camera.main;
 			m_mouseLook.Init(transform , m_camera.transform);
 			m_originalCameraLocalPosition = m_camera.transform.localPosition;
 			m_fovKick.Setup(m_camera);

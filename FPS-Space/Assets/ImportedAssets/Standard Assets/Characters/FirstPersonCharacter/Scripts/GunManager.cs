@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 namespace UnityStandardAssets.Characters.FirstPerson
 {
@@ -8,14 +9,15 @@ namespace UnityStandardAssets.Characters.FirstPerson
 	{
 		[SerializeField] private GameObject m_muzzle;
 		[SerializeField] private GameObject m_sparkle;
+		[SerializeField] private float m_coolTime;
+		[SerializeField] private float m_sparkleLifeTime;
+		[SerializeField] private float m_offset;		
 		[SerializeField] private AudioClip m_audioClip;
 		[SerializeField] private FirstPersonCamera m_firstPersonCamera;
 		
 		private Vector3 m_hitPosition;
 		private bool m_isHit;
 		private bool m_isCoolTime;
-		private const float m_coolTime = 0.5f;
-		private const float m_offset = 0.1f;
 		private GameObject m_muzzleFlash;
 		private GameObject m_hitSparkle;
 		private AudioSource m_audioSource;
@@ -64,7 +66,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			m_isCoolTime = true;
 			FireSound();
 			FireEffect();
-			Invoke("SetCoolTime", m_coolTime);
+			StartCoroutine (((Func<IEnumerator>)SetCoolTime).Method.Name);
 		}
 		
 		private void FireSound()
@@ -75,28 +77,31 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		private void FireEffect ()
 		{
 			m_muzzleFlash = Instantiate(m_sparkle, m_muzzle.transform.position, m_muzzle.transform.rotation, m_muzzle.transform) as GameObject;
-			Invoke("DestroyMuzzleFlash", 0.1f);
+			StartCoroutine (((Func<IEnumerator>)DestroyMuzzleFlash).Method.Name);
 			
 			if (m_isHit)
 			{
 				HitSparkleOffset();
 				m_hitSparkle = Instantiate(m_sparkle, m_hitPosition, m_muzzle.transform.rotation) as GameObject;
-				Invoke("DestroyHitSparkle", 0.1f);
+				StartCoroutine (((Func<IEnumerator>)DestroyHitSparkle).Method.Name);
 			}
 		}
 
-		private void SetCoolTime()
+		private IEnumerator SetCoolTime()
 		{
+			yield return new WaitForSeconds(m_coolTime);
 			m_isCoolTime = false;
 		}
 
-		private void DestroyMuzzleFlash()
+		private IEnumerator DestroyMuzzleFlash()
 		{
+			yield return new WaitForSeconds(m_sparkleLifeTime);
 			Destroy(m_muzzleFlash);
 		}
 		
-		private void DestroyHitSparkle()
+		private IEnumerator DestroyHitSparkle()
 		{
+			yield return new WaitForSeconds(m_sparkleLifeTime);
 			Destroy(m_hitSparkle);
 		}
 
