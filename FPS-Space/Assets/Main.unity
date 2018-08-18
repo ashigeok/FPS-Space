@@ -182,9 +182,39 @@ Prefab:
       propertyPath: BypassReverbZones
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 114723617946033080, guid: 454a6cbacf7b20546abb6c35035e6a17,
+        type: 2}
+      propertyPath: m_camera
+      value: 
+      objectReference: {fileID: 985471450}
+    - target: {fileID: 114499057869495034, guid: 454a6cbacf7b20546abb6c35035e6a17,
+        type: 2}
+      propertyPath: m_ammoLimit
+      value: 150
+      objectReference: {fileID: 0}
+    - target: {fileID: 114499057869495034, guid: 454a6cbacf7b20546abb6c35035e6a17,
+        type: 2}
+      propertyPath: m_fireSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 8602b7d5cd15c1943a50aa53f171c8cf, type: 3}
+    - target: {fileID: 114499057869495034, guid: 454a6cbacf7b20546abb6c35035e6a17,
+        type: 2}
+      propertyPath: m_reloadSound
+      value: 
+      objectReference: {fileID: 8300000, guid: 3c5c1d4d7b9307c458890a4beb12e4ae, type: 3}
+    - target: {fileID: 114499057869495034, guid: 454a6cbacf7b20546abb6c35035e6a17,
+        type: 2}
+      propertyPath: m_magazineSize
+      value: 30
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 454a6cbacf7b20546abb6c35035e6a17, type: 2}
   m_IsPrefabParent: 0
+--- !u!20 &985471450 stripped
+Camera:
+  m_PrefabParentObject: {fileID: 20753029954671866, guid: 454a6cbacf7b20546abb6c35035e6a17,
+    type: 2}
+  m_PrefabInternal: {fileID: 985471449}
 --- !u!1 &1765498854
 GameObject:
   m_ObjectHideFlags: 0

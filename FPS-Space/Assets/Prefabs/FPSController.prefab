@@ -521,7 +521,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_muzzle: {fileID: 1343369186204602}
   m_sparkle: {fileID: 1648515579763438, guid: 49649e0db33c1de4ea760532dd259b1b, type: 2}
-  m_audioClip: {fileID: 8300000, guid: 8602b7d5cd15c1943a50aa53f171c8cf, type: 3}
+  m_coolTime: 0
+  m_sparkleLifeTime: 0
+  m_offset: 0
+  m_ammoLimit: 0
+  m_fireSound: {fileID: 0}
   m_firstPersonCamera: {fileID: 114723617946033080}
 --- !u!114 &114515726552715510
 MonoBehaviour:
@@ -560,6 +564,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf0c7c7d1030ff744b790a6b31fdd80f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_camera: {fileID: 20753029954671866}
   m_mouseLook:
     XSensitivity: 2
     YSensitivity: 2
