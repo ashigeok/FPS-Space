@@ -19,13 +19,13 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		[SerializeField] private FirstPersonCamera m_firstPersonCamera;
 
 		private Vector3 m_hitPosition;
-		private bool m_isHit;
 		private bool m_isCoolTime;
 		private GameObject m_muzzleFlash;
 		private GameObject m_hitSparkle;
 		private AudioSource m_audioSource;
 		private int m_currentAmmo;
 		private int m_bulletsInMagazine;
+		private bool m_hasAmmo;
 		
 		// Use this for initialization
 		private void Start()
@@ -33,6 +33,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			m_audioSource = GetComponent<AudioSource>();
 			m_currentAmmo = m_ammoLimit;
 			m_bulletsInMagazine = m_magazineSize;
+			m_hasAmmo = true;
 		}
 
 		private Vector3 GetFiringDirection()
@@ -46,36 +47,35 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		}
 
 		// Update is called once per frame
-		private void Update () {
-			Fire();
-			Reload();
+		private void Update ()
+		{
+			GetInput();	
+		}
+
+
+		private void GetInput()
+		{
+			if (Input.GetMouseButton(0))
+			{
+				Fire();
+			}
+			
+			if (Input.GetKeyDown(KeyCode.R))
+			{
+				Reload();
+			}
 		}
 
 
 		private void Fire()
 		{
-			if (!Input.GetMouseButton(0) || m_isCoolTime || m_bulletsInMagazine < 1) return;
+			if(!CanFire()) return;
 			
 			m_bulletsInMagazine -= 1;
-			
-			
-			
-			RaycastHit hit;
-			if (Physics.Raycast (m_muzzle.transform.position, GetFiringDirection(), out hit))
-			{
-				m_isHit = true;
-				m_hitPosition = hit.point;
-			}
-			else
-			{
-				m_isHit = false;
-			}
-
 			m_isCoolTime = true;
 			FireSound();
 			FireEffect();
 			StartCoroutine (((Func<IEnumerator>)SetCoolTime).Method.Name);
-
 		}
 		
 		private void FireSound()
@@ -88,7 +88,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			m_muzzleFlash = Instantiate(m_sparkle, m_muzzle.transform.position, m_muzzle.transform.rotation, m_muzzle.transform) as GameObject;
 			StartCoroutine (((Func<IEnumerator>)DestroyMuzzleFlash).Method.Name);
 			
-			if (m_isHit)
+			if (IsHit())
 			{
 				HitSparkleOffset();
 				m_hitSparkle = Instantiate(m_sparkle, m_hitPosition, m_muzzle.transform.rotation) as GameObject;
@@ -100,6 +100,18 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		{
 			yield return new WaitForSeconds(m_coolTime);
 			m_isCoolTime = false;
+		}
+		
+		private bool IsHit()
+		{
+			RaycastHit hit;
+			if (Physics.Raycast (m_muzzle.transform.position, GetFiringDirection(), out hit))
+			{
+				m_hitPosition = hit.point;
+				return true;
+			}
+			
+			return false;
 		}
 
 		private IEnumerator DestroyMuzzleFlash()
@@ -142,12 +154,16 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			}
 		}
 
+		private bool CanFire()
+		{
+			return !m_isCoolTime && m_bulletsInMagazine >= 1;
+		}
+
 		private void Reload()
 		{
-			if (!Input.GetKeyDown(KeyCode.R) || m_currentAmmo < 1
-			                                 || m_bulletsInMagazine == m_magazineSize) return;
-			
-			m_audioSource.PlayOneShot(m_reloadSound);
+			if (!CanReload()) return;
+
+			ReloadSound();
 
 			int i = (m_magazineSize - m_bulletsInMagazine);
 			
@@ -160,8 +176,18 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			{
 				m_bulletsInMagazine += m_currentAmmo;
 				m_currentAmmo = 0;
+				m_hasAmmo = false;
 			}
+		}
+		
+		private void ReloadSound()
+		{
+			m_audioSource.PlayOneShot(m_reloadSound);
+		}
 
+		private bool CanReload()
+		{
+			return m_hasAmmo && m_bulletsInMagazine != m_magazineSize;
 		}
 
 	}
