@@ -55,12 +55,12 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 		private void GetInput()
 		{
-			if (Input.GetMouseButton(0))
+			if (Input.GetMouseButton(0) && CanFire())
 			{
 				Fire();
 			}
 			
-			if (Input.GetKeyDown(KeyCode.R))
+			if (Input.GetKeyDown(KeyCode.R) && CanReload())
 			{
 				Reload();
 			}
@@ -69,8 +69,6 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 		private void Fire()
 		{
-			if(!CanFire()) return;
-			
 			m_bulletsInMagazine -= 1;
 			m_isCoolTime = true;
 			FireSound();
@@ -87,13 +85,11 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		{
 			m_muzzleFlash = Instantiate(m_sparkle, m_muzzle.transform.position, m_muzzle.transform.rotation, m_muzzle.transform) as GameObject;
 			StartCoroutine (((Func<IEnumerator>)DestroyMuzzleFlash).Method.Name);
-			
-			if (IsHit())
-			{
-				HitSparkleOffset();
-				m_hitSparkle = Instantiate(m_sparkle, m_hitPosition, m_muzzle.transform.rotation) as GameObject;
-				StartCoroutine (((Func<IEnumerator>)DestroyHitSparkle).Method.Name);
-			}
+
+			if (!IsHit()) return;
+			HitSparkleOffset();
+			m_hitSparkle = Instantiate(m_sparkle, m_hitPosition, m_muzzle.transform.rotation) as GameObject;
+			StartCoroutine (((Func<IEnumerator>)DestroyHitSparkle).Method.Name);
 		}
 
 		private IEnumerator SetCoolTime()
@@ -156,13 +152,16 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 		private bool CanFire()
 		{
-			return !m_isCoolTime && m_bulletsInMagazine >= 1;
+			return !m_isCoolTime && HasBulletsInMagazine();
+		}
+
+		private bool HasBulletsInMagazine()
+		{
+			return m_bulletsInMagazine >= 1;
 		}
 
 		private void Reload()
 		{
-			if (!CanReload()) return;
-
 			ReloadSound();
 
 			int i = (m_magazineSize - m_bulletsInMagazine);
@@ -187,8 +186,12 @@ namespace UnityStandardAssets.Characters.FirstPerson
 
 		private bool CanReload()
 		{
-			return m_hasAmmo && m_bulletsInMagazine != m_magazineSize;
+			return m_hasAmmo && IsMagazineFull();
 		}
 
+		private bool IsMagazineFull()
+		{
+			return m_bulletsInMagazine != m_magazineSize;
+		}
 	}
 }
