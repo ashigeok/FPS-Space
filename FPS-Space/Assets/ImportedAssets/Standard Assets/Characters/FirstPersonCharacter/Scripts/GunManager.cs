@@ -11,22 +11,29 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		[SerializeField] private GameObject m_sparkle;
 		[SerializeField] private float m_coolTime;
 		[SerializeField] private float m_sparkleLifeTime;
-		[SerializeField] private float m_offset;		
-		[SerializeField] private AudioClip m_audioClip;
+		[SerializeField] private float m_offset;
+		[SerializeField] private int m_ammoLimit;
+		[SerializeField] private int m_magazineSize;
+		[SerializeField] private AudioClip m_fireSound;
+		[SerializeField] private AudioClip m_reloadSound;
 		[SerializeField] private FirstPersonCamera m_firstPersonCamera;
-		
+
 		private Vector3 m_hitPosition;
-		private bool m_isHit;
 		private bool m_isCoolTime;
 		private GameObject m_muzzleFlash;
 		private GameObject m_hitSparkle;
 		private AudioSource m_audioSource;
-		
+		private int m_currentAmmo;
+		private int m_bulletsInMagazine;
+		private bool m_hasAmmo;
 		
 		// Use this for initialization
 		private void Start()
 		{
 			m_audioSource = GetComponent<AudioSource>();
+			m_currentAmmo = m_ammoLimit;
+			m_bulletsInMagazine = m_magazineSize;
+			m_hasAmmo = true;
 		}
 
 		private Vector3 GetFiringDirection()
@@ -40,29 +47,29 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		}
 
 		// Update is called once per frame
-		private void Update () {
-			if (Input.GetMouseButton(0) && !m_isCoolTime)
+		private void Update ()
+		{
+			GetInput();	
+		}
+
+
+		private void GetInput()
+		{
+			if (Input.GetMouseButton(0) && CanFire())
 			{
-				RaycastHit hit;
-				
-				if (Physics.Raycast (m_muzzle.transform.position, GetFiringDirection(), out hit))
-				{
-					m_isHit = true;
-					m_hitPosition = hit.point;
-				}
-				else
-				{
-					m_isHit = false;
-				}
-				
 				Fire();
 			}
 			
+			if (Input.GetKeyDown(KeyCode.R) && CanReload())
+			{
+				Reload();
+			}
 		}
 
 
 		private void Fire()
 		{
+			m_bulletsInMagazine -= 1;
 			m_isCoolTime = true;
 			FireSound();
 			FireEffect();
@@ -71,26 +78,36 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		
 		private void FireSound()
 		{
-			m_audioSource.PlayOneShot(m_audioClip);
+			m_audioSource.PlayOneShot(m_fireSound);
 		}
 
 		private void FireEffect ()
 		{
 			m_muzzleFlash = Instantiate(m_sparkle, m_muzzle.transform.position, m_muzzle.transform.rotation, m_muzzle.transform) as GameObject;
 			StartCoroutine (((Func<IEnumerator>)DestroyMuzzleFlash).Method.Name);
-			
-			if (m_isHit)
-			{
-				HitSparkleOffset();
-				m_hitSparkle = Instantiate(m_sparkle, m_hitPosition, m_muzzle.transform.rotation) as GameObject;
-				StartCoroutine (((Func<IEnumerator>)DestroyHitSparkle).Method.Name);
-			}
+
+			if (!IsHit()) return;
+			HitSparkleOffset();
+			m_hitSparkle = Instantiate(m_sparkle, m_hitPosition, m_muzzle.transform.rotation) as GameObject;
+			StartCoroutine (((Func<IEnumerator>)DestroyHitSparkle).Method.Name);
 		}
 
 		private IEnumerator SetCoolTime()
 		{
 			yield return new WaitForSeconds(m_coolTime);
 			m_isCoolTime = false;
+		}
+		
+		private bool IsHit()
+		{
+			RaycastHit hit;
+			if (Physics.Raycast (m_muzzle.transform.position, GetFiringDirection(), out hit))
+			{
+				m_hitPosition = hit.point;
+				return true;
+			}
+			
+			return false;
 		}
 
 		private IEnumerator DestroyMuzzleFlash()
@@ -132,7 +149,49 @@ namespace UnityStandardAssets.Characters.FirstPerson
 				m_hitPosition.z -= m_offset;
 			}
 		}
-		
 
+		private bool CanFire()
+		{
+			return !m_isCoolTime && HasBulletsInMagazine();
+		}
+
+		private bool HasBulletsInMagazine()
+		{
+			return m_bulletsInMagazine >= 1;
+		}
+
+		private void Reload()
+		{
+			ReloadSound();
+
+			int i = (m_magazineSize - m_bulletsInMagazine);
+			
+			if (i < m_currentAmmo)
+			{
+				m_bulletsInMagazine += i;
+				m_currentAmmo -= i;
+			}
+			else
+			{
+				m_bulletsInMagazine += m_currentAmmo;
+				m_currentAmmo = 0;
+				m_hasAmmo = false;
+			}
+		}
+		
+		private void ReloadSound()
+		{
+			m_audioSource.PlayOneShot(m_reloadSound);
+		}
+
+		private bool CanReload()
+		{
+			return m_hasAmmo && IsMagazineFull();
+		}
+
+		private bool IsMagazineFull()
+		{
+			return m_bulletsInMagazine != m_magazineSize;
+		}
 	}
 }
