@@ -17,6 +17,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		[SerializeField] private AudioClip m_fireSound;
 		[SerializeField] private AudioClip m_reloadSound;
 		[SerializeField] private FirstPersonCamera m_firstPersonCamera;
+		[SerializeField] private float m_damage;
 
 		private Vector3 m_hitPosition;
 		private bool m_isCoolTime;
@@ -26,6 +27,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		private int m_currentAmmo;
 		private int m_bulletsInMagazine;
 		private bool m_hasAmmo;
+		private bool m_isHit;
 		
 		// Use this for initialization
 		private void Start()
@@ -50,6 +52,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		private void Update ()
 		{
 			GetInput();	
+			Debug.DrawRay(m_muzzle.transform.position, GetFiringDirection(), Color.black);
 		}
 
 
@@ -71,6 +74,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		{
 			m_bulletsInMagazine -= 1;
 			m_isCoolTime = true;
+			Hit();
 			FireSound();
 			FireEffect();
 			StartCoroutine (((Func<IEnumerator>)SetCoolTime).Method.Name);
@@ -86,7 +90,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			m_muzzleFlash = Instantiate(m_sparkle, m_muzzle.transform.position, m_muzzle.transform.rotation, m_muzzle.transform) as GameObject;
 			StartCoroutine (((Func<IEnumerator>)DestroyMuzzleFlash).Method.Name);
 
-			if (!IsHit()) return;
+			if (!m_isHit) return;
 			HitSparkleOffset();
 			m_hitSparkle = Instantiate(m_sparkle, m_hitPosition, m_muzzle.transform.rotation) as GameObject;
 			StartCoroutine (((Func<IEnumerator>)DestroyHitSparkle).Method.Name);
@@ -98,16 +102,21 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			m_isCoolTime = false;
 		}
 		
-		private bool IsHit()
+		private void Hit()
 		{
 			RaycastHit hit;
 			if (Physics.Raycast (m_muzzle.transform.position, GetFiringDirection(), out hit))
 			{
 				m_hitPosition = hit.point;
-				return true;
+				m_isHit = true;
+				
+				if (!hit.collider.gameObject.CompareTag("Enemy")) return;
+				DoDamage(hit.collider.gameObject);
 			}
-			
-			return false;
+			else
+			{
+				m_isHit = false;
+			}
 		}
 
 		private IEnumerator DestroyMuzzleFlash()
@@ -192,6 +201,11 @@ namespace UnityStandardAssets.Characters.FirstPerson
 		private bool IsMagazineFull()
 		{
 			return m_bulletsInMagazine != m_magazineSize;
+		}
+
+		private void DoDamage(GameObject enemy)
+		{
+			enemy.transform.root.GetComponent<Health>().TakeDamage(m_damage);
 		}
 	}
 }
