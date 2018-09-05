@@ -52,7 +52,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
 			var ray = new Ray (m_camera.transform.position, m_camera.transform.forward);
 			RaycastHit hit;
 
-			hitPosition = Physics.Raycast(ray, out hit) ? hit.point : ray.GetPoint(100f);
+			hitPosition = Physics.Raycast(ray, out hit) ? hit.point : ray.GetPoint(500f);
 
 			return hitPosition;
 		}
